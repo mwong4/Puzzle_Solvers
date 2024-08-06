@@ -1,4 +1,11 @@
 import random
+import time
+
+## Clint, Soare : 4.518
+## Coals, Niter : 4.537
+
+FIRST_GUESS = "coals"
+SECOND_GUESS = "niter"
 
 def pred(ele):
     return ele.key()
@@ -39,14 +46,21 @@ def solver(word, silent, automated):
     # Interface starts here
     tries = 1
     if not silent: print("\n == (_ for fail, caps for green, lowercase for yellow) ==")
-    if not silent: print("Start: SLATE")
-    guess = "slate"
-    words.pop('slate')
+    if not silent: print("Start: " + FIRST_GUESS.upper())
+    guess = FIRST_GUESS
+    words.pop(FIRST_GUESS)
 
     while True:
         # Check exit condition
         if guess.lower() == word or tries == 6:
             return tries
+        
+        # 2 guess init, run if not guessed on 2nd try
+        if (tries == 2):
+            guess = SECOND_GUESS
+            if (SECOND_GUESS in words):
+                words.pop(SECOND_GUESS)
+            if not silent: print("2nd Guess Override: " + guess.upper())
 
         # Input
         if automated:
@@ -59,7 +73,7 @@ def solver(word, silent, automated):
                 if (len(inp) == 5):
                     good = True
         
-        tries, guess = solve_case(inp, silent, tries, word, words, guess)
+        tries, guess, words = solve_case(inp, silent, tries, word, words, guess)
 
         
 def solve_case(inp, silent, tries, word, words, guess):
@@ -96,18 +110,28 @@ def solve_case(inp, silent, tries, word, words, guess):
     words.pop(list(words)[0])
     inp = ""
     tries += 1    
-    return [tries, guess.lower()]
+    return [tries, guess.lower(), words]
 
 def wordle_output(word, guess):
     curr_char = 0
     output = ""
+    occurances = dict()
     for char in guess:
         if char == word[curr_char]:
             # Green
             output = output + char.upper()
-        elif (char in word) and guess.count(char) <= word.count(char):
+        elif (char in word):
             # Yellow
-            output = output + char.lower()
+            # Tracks number of occurances
+            if (char in occurances):
+                occurances[char] += 1
+            else:
+                occurances[char] = 1
+            # If occurance not too many
+            if occurances[char] <= word.count(char):
+                output = output + char.lower()
+            else:
+                output = output + "_"
         else:
             output = output + "_"
         curr_char += 1
@@ -115,6 +139,7 @@ def wordle_output(word, guess):
     return output
 
 def testing_runner():
+    start_time = time.time()
     # Load words from list
     f = open('words.txt', 'r')
     content = f.read()
@@ -128,14 +153,19 @@ def testing_runner():
         if (counter % 300 == 0):
             status = round(100*(counter / len(words)))
             print("Status: " + str(status) + "%") # Status
-        attemps = solver(w, True, True)
-        sum += attemps
+        try:
+            attemps = solver(w, True, True)
+            sum += attemps
+        except:
+            print("ERROR occurred on word: " + w)
 
     avg = sum/len(words)
     print("Average Attempt Count: " + str(avg))
+    print("--- %s seconds ---" % (time.time() - start_time))
 
 
 
 if __name__ == '__main__':
-    # solver("runningggg", False) # Normal
+    # solver("abort", False, False) # Normal
+
     testing_runner()
