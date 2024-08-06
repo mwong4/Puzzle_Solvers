@@ -3,15 +3,16 @@ import time
 
 ## Clint, Soare : 4.518
 ## Coals, Niter : 4.537
+## Slate, Orcin : 4.54
 
-FIRST_GUESS = "coals"
-SECOND_GUESS = "niter"
+FIRST_GUESS = "clint"
+SECOND_GUESS = "soare"
 
 def pred(ele):
     return ele.key()
 
 
-def solver(word, silent, automated):
+def pre_solver(silent):
     if not silent: print("Loading...")
 
     # Load rankings of letters, for later sorting
@@ -41,8 +42,10 @@ def solver(word, silent, automated):
 
     words = dict(sorted(words.items(), key=lambda item: item[1], reverse=True))
     if not silent: print("Done!")
-
     #### Done Pre-Parsing
+    return words
+
+def solver(word, silent, automated, words):
     # Interface starts here
     tries = 1
     if not silent: print("\n == (_ for fail, caps for green, lowercase for yellow) ==")
@@ -139,6 +142,8 @@ def wordle_output(word, guess):
     return output
 
 def testing_runner():
+    pre_parsed_words = pre_solver(True)
+
     start_time = time.time()
     # Load words from list
     f = open('words.txt', 'r')
@@ -154,7 +159,8 @@ def testing_runner():
             status = round(100*(counter / len(words)))
             print("Status: " + str(status) + "%") # Status
         try:
-            attemps = solver(w, True, True)
+            copy = dict(pre_parsed_words)
+            attemps = solver(w, True, True, copy)
             sum += attemps
         except:
             print("ERROR occurred on word: " + w)
@@ -164,8 +170,8 @@ def testing_runner():
     print("--- %s seconds ---" % (time.time() - start_time))
 
 
-
 if __name__ == '__main__':
-    # solver("abort", False, False) # Normal
+    # words = pre_solver(False)
+    # solver("dizzy", False, False, words) # Normal
 
     testing_runner()
