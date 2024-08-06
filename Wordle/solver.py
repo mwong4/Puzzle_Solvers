@@ -5,6 +5,9 @@ import time
 ## Coals, Niter : 4.537
 ## Slate, Orcin : 4.54
 
+##### TODO #####
+
+
 FIRST_GUESS = "clint"
 SECOND_GUESS = "soare"
 
@@ -55,7 +58,7 @@ def solver(word, silent, automated, words):
 
     while True:
         # Check exit condition
-        if guess.lower() == word or tries == 6:
+        if guess.lower() == word or tries == 6 or word == SECOND_GUESS:
             return tries
         
         # 2 guess init, run if not guessed on 2nd try
@@ -77,6 +80,7 @@ def solver(word, silent, automated, words):
                     good = True
         
         tries, guess, words = solve_case(inp, silent, tries, word, words, guess)
+        words.pop(guess)
 
         
 def solve_case(inp, silent, tries, word, words, guess):
@@ -110,7 +114,6 @@ def solve_case(inp, silent, tries, word, words, guess):
     # Get most likely result
     if not silent: print("Try: " + list(words)[0].upper())
     guess = list(words)[0].upper()
-    words.pop(list(words)[0])
     inp = ""
     tries += 1    
     return [tries, guess.lower(), words]
@@ -172,6 +175,6 @@ def testing_runner():
 
 if __name__ == '__main__':
     # words = pre_solver(False)
-    # solver("dizzy", False, False, words) # Normal
+    # solver("soare", False, False, words) # Normal
 
     testing_runner()
