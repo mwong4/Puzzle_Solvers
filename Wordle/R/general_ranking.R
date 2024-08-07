@@ -1,3 +1,4 @@
+rm(list = ls())
 cat("\014") 
 
 most_repeated_character <- function(x) {
@@ -5,7 +6,7 @@ most_repeated_character <- function(x) {
   names(tab)[tab == max(tab)]
 }
 
-file <- '../words.txt'
+file <- 'words.txt'
 mydata <- readChar(file, file.info(file)$size)
 # Prune whitespace
 mydata <- invisible(gsub(" ", "", mydata))
