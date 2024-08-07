@@ -1,4 +1,3 @@
-import random
 import time
 import pandas as pd 
 
@@ -11,8 +10,8 @@ import pandas as pd
 # Sort by position over just letter rank
 # Find best starter words
 
-FIRST_GUESS = "soare"
-SECOND_GUESS = "clint"
+FIRST_GUESS = "crane"
+SECOND_GUESS = "moist"
 
 def pred(ele):
     return ele.key()
@@ -191,7 +190,7 @@ def testing_runner():
 
 
 if __name__ == '__main__':
-    # words = pre_solver(False)
-    # solver("added", False, False, words) # Normal 
+    words = pre_solver(False)
+    solver("testinggg", False, False, words) # Normal 
 
-    testing_runner()
+    # testing_runner()
