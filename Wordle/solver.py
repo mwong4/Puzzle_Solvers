@@ -1,15 +1,18 @@
 import random
 import time
+import pandas as pd 
 
+## Soare, Clint : 4.513
 ## Clint, Soare : 4.518
 ## Coals, Niter : 4.537
 ## Slate, Orcin : 4.54
 
 ##### TODO #####
+# Sort by position over just letter rank
+# Find best starter words
 
-
-FIRST_GUESS = "clint"
-SECOND_GUESS = "soare"
+FIRST_GUESS = "soare"
+SECOND_GUESS = "clint"
 
 def pred(ele):
     return ele.key()
@@ -58,8 +61,10 @@ def solver(word, silent, automated, words):
 
     while True:
         # Check exit condition
-        if guess.lower() == word or tries == 6 or word == SECOND_GUESS:
+        if guess.lower() == word or word == SECOND_GUESS:
             return tries
+        if tries > 6:
+            return 7
         
         # 2 guess init, run if not guessed on 2nd try
         if (tries == 2):
@@ -146,6 +151,7 @@ def wordle_output(word, guess):
 
 def testing_runner():
     pre_parsed_words = pre_solver(True)
+    result = {1:[], 2:[], 3:[], 4:[], 5:[], 6:[], 7:[]}
 
     start_time = time.time()
     # Load words from list
@@ -164,17 +170,24 @@ def testing_runner():
         try:
             copy = dict(pre_parsed_words)
             attemps = solver(w, True, True, copy)
+            result[attemps].append(w)
             sum += attemps
         except:
             print("ERROR occurred on word: " + w)
 
     avg = sum/len(words)
     print("Average Attempt Count: " + str(avg))
+    print("Number of 7+'s: " + str(len(result[7])))
     print("--- %s seconds ---" % (time.time() - start_time))
+
+    # Write to csv
+    for i in range(1, 8):
+        df = pd.DataFrame(result[i])
+        df.to_csv('results/result_' + str(i) + '.csv', index=False, header=False)
 
 
 if __name__ == '__main__':
     # words = pre_solver(False)
-    # solver("soare", False, False, words) # Normal
+    # solver("added", False, False, words) # Normal 
 
     testing_runner()
