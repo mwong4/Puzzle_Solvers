@@ -24,11 +24,15 @@ def pre_solver(silent):
     # Load rankings of letters, for later sorting
     f = open('letter_rank.txt', 'r')
     rank_content = f.read()
-    ranks = dict()
+    temp = rank_content.split()
+    ranks = {1:{}, 2:{}, 3:{}, 4:{}, 5:{}}
     f.close()
 
-    for i in range(0, len(rank_content)):
-        ranks[rank_content[i]] = 26 - i
+    counter = 1
+    for i in temp:
+        for j in range(0,26):
+            ranks[counter][i[j]] = 26 - j
+        counter += 1
 
     # Load words from list
     f = open('words.txt', 'r')
@@ -43,7 +47,7 @@ def pre_solver(silent):
         ele_copy = ele
         ele_copy = "".join(set(ele_copy))
         for i in range(0, len(ele_copy)):
-            score += ranks[ele_copy[i]]
+            score += ranks[i+1][ele_copy[i]]
         words[ele] = score
 
     words = dict(sorted(words.items(), key=lambda item: item[1], reverse=True))
