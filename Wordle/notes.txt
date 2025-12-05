@@ -1,0 +1,8 @@
+4.589 9.66 (Original)
+4.548 8.72 (-100 Multiplier)
+4.552 8.97 (-100 Definite)
+
+Next Plan:
+
+- Implement points awarded per letter by relative occurance rather than order
+- Implement points awarded for most common repeated

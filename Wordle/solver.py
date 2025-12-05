@@ -10,8 +10,9 @@ import pandas as pd
 # Sort by position over just letter rank
 # Find best starter words
 
-FIRST_GUESS = "crane"
-SECOND_GUESS = "moist"
+# Must be non empty
+INITIAL_GUESSES = ["soare", "clint", "poule"] # "crane", "moist"
+MULTIPLIER = -1000
 
 def pred(ele):
     return ele.key()
@@ -44,9 +45,11 @@ def pre_solver(silent):
     for idx, ele in enumerate(temp):
         score = 0
         ele_copy = ele
-        ele_copy = "".join(set(ele_copy))
+        # ele_copy = "".join(set(ele_copy))
         for i in range(0, len(ele_copy)):
             score += ranks[i+1][ele_copy[i]]
+            if (ele_copy.count(ele_copy[i]) > 1):
+                score = (score * -1) + MULTIPLIER
         words[ele] = score
 
     words = dict(sorted(words.items(), key=lambda item: item[1], reverse=True))
@@ -54,27 +57,31 @@ def pre_solver(silent):
     #### Done Pre-Parsing
     return words
 
-def solver(word, silent, automated, words):
+def solver(word, silent, automated, words, init_guesses):
     # Interface starts here
     tries = 1
+    init_size = len(init_guesses)
+    guess = "temp"
+
     if not silent: print("\n == (_ for fail, caps for green, lowercase for yellow) ==")
-    if not silent: print("Start: " + FIRST_GUESS.upper())
-    guess = FIRST_GUESS
-    words.pop(FIRST_GUESS)
+    if len(init_guesses) > 0:
+        if not silent: print("Start: " + init_guesses[0].upper())
+        guess = init_guesses[0]
+        words.pop(init_guesses[0])
 
     while True:
         # Check exit condition
-        if guess.lower() == word or word == SECOND_GUESS:
+        if guess.lower() == word or (tries <= init_size and word == init_guesses[tries-1]):
             return tries
         if tries > 6:
             return 7
         
         # 2 guess init, run if not guessed on 2nd try
-        if (tries == 2):
-            guess = SECOND_GUESS
-            if (SECOND_GUESS in words):
-                words.pop(SECOND_GUESS)
-            if not silent: print("2nd Guess Override: " + guess.upper())
+        if (tries <= init_size):
+            guess = init_guesses[tries-1]
+            if (init_guesses[tries-1] in words):
+                words.pop(init_guesses[tries-1])
+            if not silent: print("Initial Guess Override #" + str(tries) + ": " + guess.upper())
 
         # Input
         if automated:
@@ -90,6 +97,13 @@ def solver(word, silent, automated, words):
         tries, guess, words = solve_case(inp, silent, tries, word, words, guess)
         words.pop(guess)
 
+        # If 4th Guess, Bring back in duplicate cases
+        if tries == 4:
+            for val, key in enumerate(words):
+                copy = key
+                copy = "".join(set(copy))
+                if val < 0:
+                    val = (val - MULTIPLIER) * -1
         
 def solve_case(inp, silent, tries, word, words, guess):
     # Parse result
@@ -172,7 +186,7 @@ def testing_runner():
             print("Status: " + str(status) + "%") # Status
         try:
             copy = dict(pre_parsed_words)
-            attemps = solver(w, True, True, copy)
+            attemps = solver(w, True, True, copy, INITIAL_GUESSES)
             result[attemps].append(w)
             sum += attemps
         except:
@@ -180,7 +194,9 @@ def testing_runner():
 
     avg = sum/len(words)
     print("Average Attempt Count: " + str(avg))
-    print("Number of 7+'s: " + str(len(result[7])))
+    print("Number of 7+'s: " + str(len(result[7])) + " (" + str(round((len(result[7]) / len(words)) * 100, 2)) + "%)")
+    print("7+ Words: ")
+    print(result[7])
     print("--- %s seconds ---" % (time.time() - start_time))
 
     # Write to csv
@@ -191,6 +207,9 @@ def testing_runner():
 
 if __name__ == '__main__':
     words = pre_solver(False)
-    solver("testinggg", False, False, words) # Normal 
+    # solver("testinggg", False, False, words) # Normal 
 
-    # testing_runner()
+    # testing_runner() # Tester
+
+
+    solver("mouth", False, False, words, INITIAL_GUESSES) # Debug
