@@ -26,17 +26,21 @@ def run_pull(pulls_without_win, lost_event_char):
     pulls_without_win += 1
     if pulls_without_win == GUARANTEE_4STAR:
         # Guarantee 4/5 star
-        if lost_event_char:  return draw_evenchar() # guarantee event character (20 pulls)
+        if lost_event_char:  
+            return draw_evenchar() # guarantee event character (20 pulls)
         else: # Won character (normal 10 pull)
-            if draw(P_EVENT_4STAR): return draw_evenchar() # Won event 4 star character
-            else: return [0, True, False] # Won regular 4 star character
+            if draw(P_EVENT_4STAR): 
+                return draw_evenchar() # Won event 4 star character
+            else: 
+                return [0, True, False] # Won regular 4 star character
     else: # normal pull
         if draw(P_4STAR_BASE): # Win 4 star
             if lost_event_char or draw(P_EVENT_4STAR):
                 return draw_evenchar() # Won event 4 star character
             else:
                 return [0, True, False] # Won regular 4 star character
-        else: return [pulls_without_win, lost_event_char, False] # No win
+        else: 
+            return [pulls_without_win, lost_event_char, False] # No win
             
 ### Main
 raw_data = [0] * RUN_CAP
