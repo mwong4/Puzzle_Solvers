@@ -33,17 +33,9 @@ def draw(probability):
 
 # returns necessary data for if drawing an event char was 4 star or 5 star
 def draw_evenchar():
-    if draw(P_GUARANTEE_4STAR):
-        # Won event 4 star
-        if draw(P_SPECIFIC_EVENT_4STAR):
-            # Won Specific 4 star
-            return [0, False, True]
-        else:
-            # Won Someone Else
-            return [0, False, False]
-    else:
-        # Won event 5 star
-        return [0, False, False]
+    # Won specific event 4 star
+    if draw(P_GUARANTEE_4STAR) and draw(P_SPECIFIC_EVENT_4STAR): return [0, False, True]
+    return [0, False, False] # Otherwise, won someone else (not specific 4 star, or 5 star)
 
 # In charge of simulating each pull
 # Requires and updates number of pulls without win, and if an event character is guaranteed
