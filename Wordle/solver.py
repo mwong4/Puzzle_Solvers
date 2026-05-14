@@ -112,7 +112,7 @@ def solve_case(inp, silent, tries, word, words, guess):
         else:
             if not silent: print("-"+guess[curr_char].lower(), end =" ")
             # Ignore This Char
-            for key, value in words:
+            for key in words:
                 if guess[curr_char].lower() in key and (inp.count(guess[curr_char].lower()) + inp.count(guess[curr_char].upper()) == 0):
                     copy.pop(key)
         curr_char += 1
@@ -127,30 +127,19 @@ def solve_case(inp, silent, tries, word, words, guess):
     return [tries, guess.lower(), words]
 
 def wordle_output(word, guess):
-    curr_char = 0
-    output = ""
-    occurances = dict()
-    for char in guess:
-        if char == word[curr_char]:
-            # Green
-            output = output + char.upper()
-        elif (char in word):
-            # Yellow
-            # Tracks number of occurances
-            if (char in occurances):
-                occurances[char] += 1
-            else:
-                occurances[char] = 1
-            # If occurance not too many
-            if occurances[char] <= word.count(char):
-                output = output + char.lower()
-            else:
-                output = output + "_"
-        else:
-            output = output + "_"
-        curr_char += 1
+    word_copy = list(word)
+    output = ['_', '_', '_', '_', '_']
+    # First label greens
+    for i in range(5):
+        if word[i] == guess[i]:
+            output[i] = word[i].upper()
+            word_copy[i] = '_'
+    # Next label yellow
+    for i in range(5):
+        if word[i] != guess[i] and guess[i] in word_copy:
+            output[i] = guess[i]
 
-    return output
+    return "".join(output)
 
 def testing_runner():
     pre_parsed_words = pre_solver(True)
@@ -194,8 +183,8 @@ if __name__ == '__main__':
     words = pre_solver(False)
     # solver("testinggg", False, False, words, INITIAL_GUESSES) # Normal 
 
-    # testing_runner() # Tester
+    testing_runner() # Tester
 
     # solver("dowdy", False, False, words, INITIAL_GUESSES) # Debug
 
-    print(wordle_output("dowdy", "daddy"))
+    # print(wordle_output("dowdy", "daddy"))
