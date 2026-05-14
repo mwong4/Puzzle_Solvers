@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator
 
 # Simulation params
-N = 1000000 # How many pull periods
+N = 100000 # How many pull periods
 RUN_CAP = 150 # How may pulls before giving up
 
 P_4STAR_BASE = 0.051 # Base 

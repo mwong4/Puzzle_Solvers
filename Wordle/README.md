@@ -1,0 +1,50 @@
+# Wordle Solver
+
+## How to Use
+
+### Pre-Processor
+
+```python
+py pre_process.py
+```
+
+### Solving
+
+This is for typical use, it solving the daily Wordle
+
+Main should look like the following
+
+```python
+if __name__ == '__main__':
+    words = pre_solver(False)
+    solver("somereallylongwordover5letters", False, False, words)
+```
+
+```python
+py solver.py
+```
+
+### Evaluating Model
+
+This is for evaluating the present model/inputs. Will output metrics like the following:
+
+```
+Average Attempt Count: 4.552406597105351
+Number of 7+'s: 1332 (8.97%)
+```
+
+Use this tool in order to optimize the solver.
+
+Main should look like the following
+
+```python
+if __name__ == '__main__':
+    words = pre_solver(False)
+    testing_runner()
+```
+
+Run via
+
+```python
+py solver.py
+```

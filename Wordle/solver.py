@@ -1,5 +1,6 @@
 import time
 import pandas as pd 
+import json
 
 ## Soare, Clint : 4.513
 ## Clint, Soare : 4.518
@@ -11,51 +12,36 @@ import pandas as pd
 # Find best starter words
 
 # Must be non empty
-INITIAL_GUESSES = ["soare", "clint", "poule"] # "crane", "moist"
+INITIAL_GUESSES = ["soare", "clint"] # "crane", "moist"
 MULTIPLIER = -1000
+MODEL_FILE = "wordcount_output.json"
+WORDS_FILE = "words.txt"
 
 def pred(ele):
     return ele.key()
 
 
 def pre_solver(silent):
+    result = {}
     if not silent: print("Loading...")
 
-    # Load rankings of letters, for later sorting
-    f = open('letter_rank.txt', 'r')
-    rank_content = f.read()
-    temp = rank_content.split()
-    ranks = {1:{}, 2:{}, 3:{}, 4:{}, 5:{}}
-    f.close()
+    # Load wordcounts
+    with open(MODEL_FILE, 'r') as file:
+        count = json.load(file)
 
-    counter = 1
-    for i in temp:
-        for j in range(0,26):
-            ranks[counter][i[j]] = 26 - j
-        counter += 1
+    # Load words
+    with open(WORDS_FILE, 'r') as file:
+        words = file.read().splitlines()
 
-    # Load words from list
-    f = open('words.txt', 'r')
-    content = f.read()
-    temp = content.split()
-    words = dict()
-    f.close()
+    # Collect scores
+    for word in words:
+        score = 1
+        for i in range(len(word)):
+            score *= count[str(i)][word[i]] / len(words)
+        result[word] = score
     
-    # using loop to reform dictionary with splits
-    for idx, ele in enumerate(temp):
-        score = 0
-        ele_copy = ele
-        # ele_copy = "".join(set(ele_copy))
-        for i in range(0, len(ele_copy)):
-            score += ranks[i+1][ele_copy[i]]
-            if (ele_copy.count(ele_copy[i]) > 1):
-                score = (score * -1) + MULTIPLIER
-        words[ele] = score
-
-    words = dict(sorted(words.items(), key=lambda item: item[1], reverse=True))
-    if not silent: print("Done!")
-    #### Done Pre-Parsing
-    return words
+    result = dict(sorted(result.items(), key=lambda item: item[1], reverse=True))
+    return result # Return dictionary of words with their score, sorted
 
 def solver(word, silent, automated, words, init_guesses):
     # Interface starts here
@@ -76,7 +62,7 @@ def solver(word, silent, automated, words, init_guesses):
         if tries > 6:
             return 7
         
-        # 2 guess init, run if not guessed on 2nd try
+        # Keep going through initial guesses
         if (tries <= init_size):
             guess = init_guesses[tries-1]
             if (init_guesses[tries-1] in words):
@@ -98,12 +84,12 @@ def solver(word, silent, automated, words, init_guesses):
         words.pop(guess)
 
         # If 4th Guess, Bring back in duplicate cases
-        if tries == 4:
-            for val, key in enumerate(words):
-                copy = key
-                copy = "".join(set(copy))
-                if val < 0:
-                    val = (val - MULTIPLIER) * -1
+        # if tries == 4:
+        #     for val, key in enumerate(words):
+        #         copy = key
+        #         copy = "".join(set(copy))
+        #         if val < 0:
+        #             val = (val - MULTIPLIER) * -1
         
 def solve_case(inp, silent, tries, word, words, guess):
     # Parse result
@@ -126,7 +112,7 @@ def solve_case(inp, silent, tries, word, words, guess):
         else:
             if not silent: print("-"+guess[curr_char].lower(), end =" ")
             # Ignore This Char
-            for key in words:
+            for key, value in words:
                 if guess[curr_char].lower() in key and (inp.count(guess[curr_char].lower()) + inp.count(guess[curr_char].upper()) == 0):
                     copy.pop(key)
         curr_char += 1
@@ -172,10 +158,9 @@ def testing_runner():
 
     start_time = time.time()
     # Load words from list
-    f = open('words.txt', 'r')
-    content = f.read()
-    words = content.split()
-    f.close()
+    with open(WORDS_FILE, 'r') as f:
+        content = f.read()
+        words = content.split()
 
     sum = 0
     counter = 0
@@ -207,9 +192,10 @@ def testing_runner():
 
 if __name__ == '__main__':
     words = pre_solver(False)
-    # solver("testinggg", False, False, words) # Normal 
+    # solver("testinggg", False, False, words, INITIAL_GUESSES) # Normal 
 
     # testing_runner() # Tester
 
+    # solver("dowdy", False, False, words, INITIAL_GUESSES) # Debug
 
-    solver("mouth", False, False, words, INITIAL_GUESSES) # Debug
+    print(wordle_output("dowdy", "daddy"))
