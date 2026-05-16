@@ -3,6 +3,9 @@
 4.552 8.97 (-100 Definite)
 
 Next Plan:
-
 - Implement points awarded per letter by relative occurance rather than order
 - Implement points awarded for most common repeated
+
+Current Performance:
+Average Attempt Count: 4.679097946819253
+Number of 7+'s: 2007 (13.51%)

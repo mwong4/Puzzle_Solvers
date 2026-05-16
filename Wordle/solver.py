@@ -128,16 +128,23 @@ def solve_case(inp, silent, tries, word, words, guess):
 
 def wordle_output(word, guess):
     word_copy = list(word)
+    guess_copy = list(guess)
     output = ['_', '_', '_', '_', '_']
     # First label greens
     for i in range(5):
         if word[i] == guess[i]:
             output[i] = word[i].upper()
             word_copy[i] = '_'
+            guess_copy[i] = '_'
     # Next label yellow
+    ## For each letter that is not green in actual word
     for i in range(5):
-        if word[i] != guess[i] and guess[i] in word_copy:
-            output[i] = guess[i]
+        if word_copy[i] != '_': 
+            # if it is in copy, label copy with yellow and pop from guess
+            if word_copy[i] in guess_copy:
+                idx = guess_copy.index(word_copy[i])
+                output[idx] = guess_copy[idx]
+                guess_copy[idx] = '_'
 
     return "".join(output)
 
@@ -186,5 +193,3 @@ if __name__ == '__main__':
     testing_runner() # Tester
 
     # solver("dowdy", False, False, words, INITIAL_GUESSES) # Debug
-
-    # print(wordle_output("dowdy", "daddy"))
