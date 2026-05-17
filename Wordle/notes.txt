@@ -3,8 +3,7 @@
 4.552 8.97 (-100 Definite)
 
 Next Plan:
-- Implement points awarded per letter by relative occurance rather than order
-- Implement points awarded for most common repeated
+???
 
 Current Performance:
 (3 initial guesses: "soare", "clint", "bumpy")
