@@ -7,5 +7,5 @@ Next Plan:
 - Implement points awarded for most common repeated
 
 Current Performance:
-Average Attempt Count: 4.679097946819253
-Number of 7+'s: 2007 (13.51%)
+Average Attempt Count: 4.5877482329182095
+Number of 7+'s: 1497 (10.08%)
