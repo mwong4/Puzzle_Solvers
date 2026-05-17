@@ -2,17 +2,10 @@ import time
 import pandas as pd 
 import json
 
-## Soare, Clint : 4.513
-## Clint, Soare : 4.518
-## Coals, Niter : 4.537
-## Slate, Orcin : 4.54
-
-##### TODO #####
-# Sort by position over just letter rank
-# Find best starter words
 
 # Must be non empty
-INITIAL_GUESSES = ["soare", "clint"] # "crane", "moist"
+# INITIAL_GUESSES = ["hates", "round", "climb"]
+INITIAL_GUESSES = ["soare", "clint", "bumpy"]
 MULTIPLIER = -1000
 MODEL_FILE = "wordcount_output.json"
 WORDS_FILE = "words.txt"
@@ -194,8 +187,5 @@ def testing_runner():
 
 if __name__ == '__main__':
     words = pre_solver(False)
-    # solver("testinggg", False, False, words, INITIAL_GUESSES) # Normal 
-
-    testing_runner() # Tester
-
-    # solver("creds", False, False, words, INITIAL_GUESSES) # Debug
+    solver("testinggg", False, False, words, INITIAL_GUESSES) # Normal 
+    # testing_runner() # Tester
