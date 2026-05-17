@@ -91,40 +91,46 @@ def solver(word, silent, automated, words, init_guesses):
         #         if val < 0:
         #             val = (val - MULTIPLIER) * -1
         
-def solve_case(inp, silent, tries, word, words, guess):
-    # Parse result
-    curr_char = 0
-    for char in inp:
-        copy = dict(words)
-        if (char != '_'):
-            if (char.isupper()):
-                if not silent: print("G", end =" ")
-                # Green
-                for key in words:
-                    if key[curr_char] != char.lower():
-                        copy.pop(key)
-            else:
-                if not silent: print("Y", end =" ")
-                # Yellow
-                for key in words:
-                    if char not in key or key[curr_char] == char:
-                        copy.pop(key)
-        else:
-            if not silent: print("-"+guess[curr_char].lower(), end =" ")
-            # Ignore This Char
-            for key in words:
-                if guess[curr_char].lower() in key and (inp.count(guess[curr_char].lower()) + inp.count(guess[curr_char].upper()) == 0):
-                    copy.pop(key)
-        curr_char += 1
-        words = dict(copy)
+def list_cleaner_helper(word_list, eliminated_list, silent):
+    for word in eliminated_list:
+        word_list.pop(word)
+    if not silent: 
+        temp = list(word_list)
+        print(temp[:5])
+        print("number of words left in the pool: " + str(len(temp)))
+    return word_list
+
+def solve_case(inp, silent, tries, true_word, word_list, guess):
+    clues = list(inp)
+
+    for i in range(len(clues)):
+        eliminated_list = []
+        if clues[i] == '_':
+            if not silent: print("-"+guess[i].lower(), end =" ")
+            for word in word_list:
+                # Remove the word if letter is grey in exact position, or if letter in word that is not also yellow or green
+                if guess[i] == word[i] or (guess[i] in word and not (guess[i].upper() in inp or guess[i] in inp)):
+                    eliminated_list.append(word) # Queue eliminations
+        elif clues[i].isupper(): # green
+            if not silent: print("G", end =" ")
+            for word in word_list:
+                if guess[i] != word[i]:
+                    eliminated_list.append(word) # Queue eliminations
+        else: # lowercase, yellow
+            yellow_letter_count = clues.count(clues[i])
+            if not silent: print("Y", end =" ")
+            for word in word_list:
+                if guess[i] == word[i] or word.count(clues[i]) < yellow_letter_count:
+                    eliminated_list.append(word) # Queue eliminations
+        word_list = list_cleaner_helper(word_list, eliminated_list, silent) # Eliminate queued eliminations
     if not silent: print("")
-    
+        
     # Get most likely result
-    if not silent: print("Try: " + list(words)[0].upper())
-    guess = list(words)[0].upper()
+    if not silent: print("Try: " + list(word_list)[0].upper())
+    guess = list(word_list)[0].upper()
     inp = ""
     tries += 1    
-    return [tries, guess.lower(), words]
+    return [tries, guess.lower(), word_list]
 
 def wordle_output(word, guess):
     word_copy = list(word)
@@ -192,4 +198,4 @@ if __name__ == '__main__':
 
     testing_runner() # Tester
 
-    # solver("dowdy", False, False, words, INITIAL_GUESSES) # Debug
+    # solver("creds", False, False, words, INITIAL_GUESSES) # Debug
