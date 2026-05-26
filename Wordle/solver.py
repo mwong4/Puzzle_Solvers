@@ -187,58 +187,42 @@ def testing_runner():
 
 
 if __name__ == '__main__':
+
     # GUI
     root = tk.Tk()
     root.title("Wordle Solver")
 
-    def add_to_list(event=None):
-        text = entry.get()
-        if text:
-            text_list.insert(tk.END, text)
-            entry.delete(0, tk.END)
+    ## Stores state of each button
+    btn_state = [0, 0, 0, 0, 0] # 0 = gray, 1 = yellow, 2 = green
+    colors = [["#7a7b7f", "#414248"], ["#c6b657", "#8e8340"], ["#69aa67", "#518750"]] # Gray, Yellow, Green: [normal, highlighted]
 
-    root.columnconfigure(0, weight=1)
-    root.columnconfigure(1, weight=3)
-    root.rowconfigure(0, weight=1)
+    def toggleBtnState(btn_id):
+        btn_state[btn_id] += 1
+        if btn_state[btn_id] > 2:
+            btn_state[btn_id] = 0
+        btns[btn_id].config(bg=colors[btn_state[btn_id]][0], highlightbackground=colors[btn_state[btn_id]][1])
+        
+    # root.rowconfigure(0, weight=1)
+    # root.rowconfigure(1, weight=1)
 
     ## Frame
-    frame = ttk.Frame(root)
-    frame.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
+    frame = tk.Frame(root)
+    frame.grid(row=0, column=0)
 
-    frame.columnconfigure(0, weight=1)
-    frame.rowconfigure(1, weight=1)
-
-    entry = ttk.Entry(frame)
-    entry.grid(row=0, column=0, sticky="ew")
+    title = tk.Label(frame, text="WORDLE SOLVER")
+    title.grid(row=0, column=0)
 
     # entry.bind("<Return>", lambda event: add_to_list())
-    entry.bind("<Return>", add_to_list)
+    # entry.bind("<Return>", add_to_list)
 
-    entry_btn = ttk.Button(frame, text="Add", command=add_to_list)
-    entry_btn.grid(row=0, column=1)
-
-    text_list = tk.Listbox(frame)
-    text_list.grid(row=1, column=0, columnspan=2, sticky="nsew")
-    ## Frame end
-
-    ## Frame 2
-    frame2 = tk.Frame(root)
-    frame2.grid(row=0, column=1, sticky="nsew", padx=5, pady=5)
-
-    frame2.columnconfigure(0, weight=1)
-    frame2.rowconfigure(1, weight=1)
-
-    entry = tk.Entry(frame2)
-    entry.grid(row=0, column=0, sticky="ew")
-
-    # entry.bind("<Return>", lambda event: add_to_list())
-    entry.bind("<Return>", add_to_list)
-
-    entry_btn = tk.Button(frame2, text="Add", command=add_to_list)
-    entry_btn.grid(row=0, column=1)
-
-    text_list = tk.Listbox(frame2)
-    text_list.grid(row=1, column=0, columnspan=2, sticky="nsew")
+    btns = []
+    btns.append(tk.Button(frame, text="S", command = lambda: toggleBtnState(0), bg=colors[0][0], highlightbackground=colors[0][1]))
+    btns.append(tk.Button(frame, text="O", command = lambda: toggleBtnState(1), bg=colors[0][0], highlightbackground=colors[0][1]))
+    btns.append(tk.Button(frame, text="A", command = lambda: toggleBtnState(2), bg=colors[0][0], highlightbackground=colors[0][1]))
+    btns.append(tk.Button(frame, text="R", command = lambda: toggleBtnState(3), bg=colors[0][0], highlightbackground=colors[0][1]))
+    btns.append(tk.Button(frame, text="E", command = lambda: toggleBtnState(4), bg=colors[0][0], highlightbackground=colors[0][1]))
+    for indx in range(len(btns)):
+        btns[indx].grid(row=1, column=indx)
     ## Frame end
 
     root.mainloop()
