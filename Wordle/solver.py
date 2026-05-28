@@ -76,14 +76,6 @@ def solver(word, silent, automated, words, init_guesses):
         
         tries, guess, words = solve_case(inp, silent, tries, word, words, guess)
         words.pop(guess)
-
-        # If 4th Guess, Bring back in duplicate cases
-        # if tries == 4:
-        #     for val, key in enumerate(words):
-        #         copy = key
-        #         copy = "".join(set(copy))
-        #         if val < 0:
-        #             val = (val - MULTIPLIER) * -1
         
 def list_cleaner_helper(word_list, eliminated_list, silent):
     for word in eliminated_list:
@@ -185,9 +177,7 @@ def testing_runner():
         df = pd.DataFrame(result[i])
         df.to_csv('results/result_' + str(i) + '.csv', index=False, header=False)
 
-
-if __name__ == '__main__':
-
+def test():
     # GUI
     root = tk.Tk()
     root.title("Wordle Solver")
@@ -223,9 +213,19 @@ if __name__ == '__main__':
     btns.append(tk.Button(frame, text="E", command = lambda: toggleBtnState(4), bg=colors[0][0], highlightbackground=colors[0][1]))
     for indx in range(len(btns)):
         btns[indx].grid(row=1, column=indx)
+
+    btn_submit = tk.Button(frame, text="SUBMIT", bg=colors[0][0], highlightbackground=colors[0][1])
+    btn_submit.grid(row=1, column=len(btns))
     ## Frame end
 
+
     root.mainloop()
+
+
+if __name__ == '__main__':
+
+    test()
+    print("done loop")
 
 
     # words = pre_solver(False)
