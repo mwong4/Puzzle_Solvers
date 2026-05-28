@@ -14,7 +14,8 @@ WORDS_FILE = "words.txt"
 def pred(ele):
     return ele.key()
 
-
+# This loads in the model pre-parsed from the trainng data, 
+# and creates a sorted list of most useful to least useful words
 def pre_solver(silent):
     result = {}
     if not silent: print("Loading...")
@@ -37,7 +38,9 @@ def pre_solver(silent):
     result = dict(sorted(result.items(), key=lambda item: item[1], reverse=True))
     return result # Return dictionary of words with their score, sorted
 
-def solver(word, silent, automated, words, init_guesses):
+# This is a wrapper function for solving the wordle, called by both
+# for manually solving wordle, and for the automated benchmarking
+def solver_wrapper(word, silent, automated, words, init_guesses):
     # Interface starts here
     tries = 1
     init_size = len(init_guesses)
@@ -55,28 +58,36 @@ def solver(word, silent, automated, words, init_guesses):
             return tries
         if tries > 6:
             return 7
-        
-        # Keep going through initial guesses
-        if (tries <= init_size):
-            guess = init_guesses[tries-1]
-            if (init_guesses[tries-1] in words):
-                words.pop(init_guesses[tries-1])
-            if not silent: print("Initial Guess Override #" + str(tries) + ": " + guess.upper())
+        tries, words, guess  = solver(word, silent, automated, words, init_guesses, tries, guess, init_size)
 
-        # Input
-        if automated:
-            inp = wordle_output(word, guess)
-            if not silent: print("Input from machine: " + inp)
-        else:
-            good = False
-            while not good:
-                inp = input("Input result: ")
-                if (len(inp) == 5):
-                    good = True
+# This function solves wordle for each iteration
+def solver(word, silent, automated, words, init_guesses, tries, guess, init_size):
+    # Keep going through initial guesses
+    if (tries <= init_size):
+        guess = init_guesses[tries-1]
+        if (init_guesses[tries-1] in words):
+            words.pop(init_guesses[tries-1])
+        if not silent: print("Initial Guess Override #" + str(tries) + ": " + guess.upper())
+
+    # Input
+    if automated:
+        # Automated input
+        inp = wordle_output(word, guess)
+        if not silent: print("Input from machine: " + inp)
+    else:
+        # Human input
+        good = False
+        while not good:
+            inp = input("Input result: ")
+            if (len(inp) == 5):
+                good = True
+    
+    # Solve case
+    tries, guess, words = solve_case(inp, silent, tries, word, words, guess)
+    words.pop(guess) # Update guess for next iteration
+    return tries, words, guess
         
-        tries, guess, words = solve_case(inp, silent, tries, word, words, guess)
-        words.pop(guess)
-        
+# This updates the list of words that are still valid
 def list_cleaner_helper(word_list, eliminated_list, silent):
     for word in eliminated_list:
         word_list.pop(word)
@@ -86,6 +97,7 @@ def list_cleaner_helper(word_list, eliminated_list, silent):
         print("number of words left in the pool: " + str(len(temp)))
     return word_list
 
+# This takes in the clues from 1 round and updates the list of words that are still valid
 def solve_case(inp, silent, tries, true_word, word_list, guess):
     clues = list(inp)
 
@@ -118,6 +130,7 @@ def solve_case(inp, silent, tries, true_word, word_list, guess):
     tries += 1    
     return [tries, guess.lower(), word_list]
 
+# This is my implementation of Wordle, and simulates the same outputs
 def wordle_output(word, guess):
     word_copy = list(word)
     guess_copy = list(guess)
@@ -140,6 +153,9 @@ def wordle_output(word, guess):
 
     return "".join(output)
 
+# This is a function used for benchmarking the current performance.
+# It tests the algo on every single possible word and produces stats
+# On the overall performance of the algo.
 def testing_runner():
     pre_parsed_words = pre_solver(True)
     result = {1:[], 2:[], 3:[], 4:[], 5:[], 6:[], 7:[]}
@@ -159,7 +175,7 @@ def testing_runner():
             print("Status: " + str(status) + "%") # Status
         try:
             copy = dict(pre_parsed_words)
-            attemps = solver(w, True, True, copy, INITIAL_GUESSES)
+            attemps = solver_wrapper(w, True, True, copy, INITIAL_GUESSES)
             result[attemps].append(w)
             sum += attemps
         except:
@@ -177,6 +193,7 @@ def testing_runner():
         df = pd.DataFrame(result[i])
         df.to_csv('results/result_' + str(i) + '.csv', index=False, header=False)
 
+# This is a temporary test
 def test():
     # GUI
     root = tk.Tk()
@@ -221,13 +238,13 @@ def test():
 
     root.mainloop()
 
-
+# This is main
 if __name__ == '__main__':
 
-    test()
-    print("done loop")
+    # test()
+    # print("done loop")
 
 
-    # words = pre_solver(False)
-    # solver("testinggg", False, False, words, INITIAL_GUESSES) # Normal 
-    # testing_runner() # Tester
+    words = pre_solver(False)
+    # solver_wrapper("testinggg", False, False, words, INITIAL_GUESSES) # Normal 
+    testing_runner() # Tester
