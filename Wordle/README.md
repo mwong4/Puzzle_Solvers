@@ -58,3 +58,9 @@ Run via
 ```python
 py solver.py  # Run the script in terminal like this
 ```
+
+## Additional Resources
+
+You can play this with the original new york times version, or Wordle Unlimited:
+https://www.nytimes.com/games/wordle/index.html
+https://wordleunlimited.org/
