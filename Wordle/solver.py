@@ -6,6 +6,7 @@ import tkinter as tk
 INITIAL_GUESSES = ["soare", "clint", "bumpy"] # Must be non empty
 MODEL_FILE = "wordcount_output.json"
 WORDS_FILE = "words.txt"
+WORD_LENGTH = 5
 
 # For GUI
 COLORS = [["#7a7b7f", "#414248"], ["#c6b657", "#8e8340"], ["#69aa67", "#518750"]] # Gray, Yellow, Green: [normal, highlighted]
@@ -37,6 +38,49 @@ def pre_solver(silent):
     result = dict(sorted(result.items(), key=lambda item: item[1], reverse=True))
     return result # Return dictionary of words with their score, sorted
 
+# Class for wordle looking letter boxes with encapsulation
+class LetterButton:
+    # Makes a new object with default values on a given frame
+    def __init__(self, frame, interact_on):
+        self.state = 0
+        self.button = tk.Label(frame, font=("Helvetica", 20, "bold"), fg="#ffffff", width=2, height=1, bg=COLORS[0][0])
+        self.hover = False
+        if interact_on:
+            self.button.bind("<Button-1>", func= lambda e: self.cycle())
+            self.button.bind("<Button-2>", func= lambda e: self.reverse_cycle())
+            self.button.bind("<Button-3>", func= lambda e: self.reverse_cycle())
+            self.button.bind("<Enter>", func= lambda e: self.hover_in())
+            self.button.bind("<Leave>", func= lambda e: self.hover_out())
+    
+    def reset(self):
+        self.state = 0
+        self.change_colour()
+    
+    def cycle(self):
+        self.state += 1
+        self.state %= len(COLORS)
+        self.change_colour()
+    
+    def reverse_cycle(self):
+        self.state -= 1
+        self.state %= len(COLORS)
+        self.change_colour()
+    
+    def hover_in(self):
+        self.hover = True
+        self.change_colour()
+    
+    def hover_out(self):
+        self.hover = False
+        self.change_colour()
+    
+    def change_colour(self):
+        self.button.config(bg=COLORS[self.state][1 if self.hover else 0])
+    
+    def change_letter(self, letter):
+        self.button.config(text=letter)
+        
+
 # This is a wrapper function for solving the wordle, called by both
 # for manually solving wordle, and for the automated benchmarking
 def solver_wrapper(word, silent, automated, words, init_guesses):
@@ -66,38 +110,6 @@ def solver_wrapper(word, silent, automated, words, init_guesses):
         root = tk.Tk()
         root.title("Wordle Solver")
 
-        ## Stores state of each button
-        btn_state = [0, 0, 0, 0, 0] # 0 = gray, 1 = yellow, 2 = green
-
-        def toggleBtnState(btn_id):
-            btn_state[btn_id] += 1
-            if btn_state[btn_id] > 2:
-                btn_state[btn_id] = 0
-            btns[btn_id].config(bg=COLORS[btn_state[btn_id]][0], highlightbackground=COLORS[btn_state[btn_id]][1])
-
-        def submitResult():
-            nonlocal tries, words, guess # Otherwise Python wont use the right scope
-
-            # Parse btn_state and create clue to pass to solver
-            temp = []
-            for btn_idx in range(len(btn_state)):
-                if btn_state[btn_idx] == 0:
-                    temp.append('_')
-                elif btn_state[btn_idx] == 1:
-                    temp.append(guess[btn_idx].lower())
-                else:
-                    temp.append(guess[btn_idx].upper())
-                # Reset State
-                btn_state[btn_idx] = 0
-                btns[btn_idx].config(bg=COLORS[btn_state[0]][0], highlightbackground=COLORS[btn_state[0]][1])
-
-            # Call Solver
-            tries, words, guess  = solver(word, silent, automated, words, init_guesses, tries, guess, init_size, "".join(temp))
-            # Update Labels
-            guess_txt_obj.config(text=guess.upper())
-            for idx in range(len(btns)):
-                btns[idx].config(text=guess[idx].upper())
-
         ## Main Frame
         main = tk.Frame(root)
         main.pack(padx=20, pady=20)
@@ -111,8 +123,11 @@ def solver_wrapper(word, silent, automated, words, init_guesses):
         try_frame.pack(anchor="w", pady=(20, 10))
         guess_label = tk.Label(try_frame, text = "TRY: ", font = ("Arial", 20, "bold"))
         guess_label.pack(side="left")
-        guess_txt_obj = tk.Label(try_frame, text = init_guesses[0].upper(), font = ("Arial", 20))
-        guess_txt_obj.pack(side="left", padx=(70, 0))
+        guess_txt = [LetterButton(try_frame, False) for i in range(WORD_LENGTH)]
+        for i in range(0, WORD_LENGTH):
+            guess_txt[i].change_letter(init_guesses[0][i].upper())
+            guess_txt[i].button.pack(side="left", padx=4)
+        guess_txt[0].button.pack(padx=(74,4))
 
         
         ## Result Frame
@@ -120,17 +135,39 @@ def solver_wrapper(word, silent, automated, words, init_guesses):
         result_frame.pack(anchor="w")
         result_label = tk.Label(result_frame, text = "RESULT: ", font = ("Arial", 20, "bold"))
         result_label.pack(side="left", padx=(0, 15))
-        btns = []
-        btns.append(tk.Button(result_frame, font=("Arial", 10), text=init_guesses[0][0].upper(), command=lambda: toggleBtnState(0), bg=COLORS[0][0], highlightbackground=COLORS[0][1]))
-        btns.append(tk.Button(result_frame, font=("Arial", 10), text=init_guesses[0][1].upper(), command=lambda: toggleBtnState(1), bg=COLORS[0][0], highlightbackground=COLORS[0][1]))
-        btns.append(tk.Button(result_frame, font=("Arial", 10), text=init_guesses[0][2].upper(), command=lambda: toggleBtnState(2), bg=COLORS[0][0], highlightbackground=COLORS[0][1]))
-        btns.append(tk.Button(result_frame, font=("Arial", 10), text=init_guesses[0][3].upper(), command=lambda: toggleBtnState(3), bg=COLORS[0][0], highlightbackground=COLORS[0][1]))
-        btns.append(tk.Button(result_frame, font=("Arial", 10), text=init_guesses[0][4].upper(), command=lambda: toggleBtnState(4), bg=COLORS[0][0], highlightbackground=COLORS[0][1]))
-        for idx in range(len(btns)):
-            btns[idx].pack(side="left", padx=3)
+        btns = [LetterButton(result_frame, True) for i in range(WORD_LENGTH)]
+        for i in range(0, WORD_LENGTH):
+            btns[i].change_letter(init_guesses[0][i].upper())
+            btns[i].button.pack(side="left", padx=4)
+        
+        def submitResult():
+            nonlocal tries, words, guess # Otherwise Python wont use the right scope
 
-        btn_submit = tk.Button(result_frame, text="SUBMIT", bg=COLORS[0][0], highlightbackground=COLORS[0][1], command=submitResult)
+            # Parse btn_state and create clue to pass to solver
+            temp = []
+            for btn_idx in range(WORD_LENGTH):
+                if btns[btn_idx].state == 0:
+                    temp.append('_')
+                elif btns[btn_idx].state == 1:
+                    temp.append(guess[btn_idx].lower())
+                else:
+                    temp.append(guess[btn_idx].upper())
+                # Reset State
+                btns[btn_idx].reset()
+
+            # Call Solver
+            tries, words, guess  = solver(word, silent, automated, words, init_guesses, tries, guess, init_size, "".join(temp))
+            # Update Labels
+            for idx in range(WORD_LENGTH):
+                guess_txt[idx].change_letter(guess[idx].upper())
+            for idx in range(len(btns)):
+                btns[idx].change_letter(guess[idx].upper())
+
+        btn_submit = tk.Button(result_frame, text="SUBMIT", bg=COLORS[0][0], command=submitResult)
         btn_submit.pack(side="left", padx=(10, 0))
+        btn_submit.bind("<Enter>", lambda e: btn_submit.config(bg=COLORS[0][1]))
+        btn_submit.bind("<Leave>", lambda e: btn_submit.config(bg=COLORS[0][0]))
+        
         root.bind("<Return>", lambda event: submitResult())
         ## Frame end
         root.mainloop()
