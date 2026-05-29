@@ -2,6 +2,14 @@
 
 ## How to Use
 
+### Dependencies
+
+Install Pandas
+
+```python
+pip install pandas
+```
+
 ### Pre-Processor
 
 Run this to train the model
