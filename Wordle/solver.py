@@ -62,7 +62,7 @@ def solver_wrapper(word, silent, automated, words, init_guesses):
                 return 7
             tries, words, guess  = solver(word, silent, automated, words, init_guesses, tries, guess, init_size)
     else:
-        # GUI
+        # GUI Mode (Manual Input)
         root = tk.Tk()
         root.title("Wordle Solver")
 
@@ -98,34 +98,40 @@ def solver_wrapper(word, silent, automated, words, init_guesses):
             for idx in range(len(btns)):
                 btns[idx].config(text=guess[idx].upper())
 
+        ## Main Frame
+        main = tk.Frame(root)
+        main.pack(padx=20, pady=20)
+        title = tk.Label(main, text = "WORDLE SOLVER", font = ("Arial", 32, "bold"))
+        title.pack(anchor="w")
+        subtitle = tk.Label(main, text = "BY MAX WONG", font = ("Arial", 10, "bold"))
+        subtitle.pack(anchor="e")
+        
+        ## Try Frame
+        try_frame = tk.Frame(main)
+        try_frame.pack(anchor="w", pady=(20, 10))
+        guess_label = tk.Label(try_frame, text = "TRY: ", font = ("Arial", 20, "bold"))
+        guess_label.pack(side="left")
+        guess_txt_obj = tk.Label(try_frame, text = init_guesses[0].upper(), font = ("Arial", 20))
+        guess_txt_obj.pack(side="left", padx=(70, 0))
 
-        # root.rowconfigure(0, weight=1)
-        # root.rowconfigure(1, weight=1)
-
-        ## Frame
-        frame = tk.Frame(root)
-        frame.grid(row=0, column=0)
-
-        title = tk.Label(frame, text="WORDLE SOLVER")
-        title.grid(row=0, column=0)
-
-        # entry.bind("<Return>", lambda event: add_to_list())
-        # entry.bind("<Return>", add_to_list)
-
-        guess_txt_obj = tk.Label(frame, text = init_guesses[0].upper())
-        guess_txt_obj.grid(row=1)
-
+        
+        ## Result Frame
+        result_frame = tk.Frame(main)
+        result_frame.pack(anchor="w")
+        result_label = tk.Label(result_frame, text = "RESULT: ", font = ("Arial", 20, "bold"))
+        result_label.pack(side="left", padx=(0, 15))
         btns = []
-        btns.append(tk.Button(frame, text=init_guesses[0][0].upper(), command = lambda: toggleBtnState(0), bg=COLORS[0][0], highlightbackground=COLORS[0][1]))
-        btns.append(tk.Button(frame, text=init_guesses[0][1].upper(), command = lambda: toggleBtnState(1), bg=COLORS[0][0], highlightbackground=COLORS[0][1]))
-        btns.append(tk.Button(frame, text=init_guesses[0][2].upper(), command = lambda: toggleBtnState(2), bg=COLORS[0][0], highlightbackground=COLORS[0][1]))
-        btns.append(tk.Button(frame, text=init_guesses[0][3].upper(), command = lambda: toggleBtnState(3), bg=COLORS[0][0], highlightbackground=COLORS[0][1]))
-        btns.append(tk.Button(frame, text=init_guesses[0][4].upper(), command = lambda: toggleBtnState(4), bg=COLORS[0][0], highlightbackground=COLORS[0][1]))
+        btns.append(tk.Button(result_frame, font=("Arial", 10), text=init_guesses[0][0].upper(), command=lambda: toggleBtnState(0), bg=COLORS[0][0], highlightbackground=COLORS[0][1]))
+        btns.append(tk.Button(result_frame, font=("Arial", 10), text=init_guesses[0][1].upper(), command=lambda: toggleBtnState(1), bg=COLORS[0][0], highlightbackground=COLORS[0][1]))
+        btns.append(tk.Button(result_frame, font=("Arial", 10), text=init_guesses[0][2].upper(), command=lambda: toggleBtnState(2), bg=COLORS[0][0], highlightbackground=COLORS[0][1]))
+        btns.append(tk.Button(result_frame, font=("Arial", 10), text=init_guesses[0][3].upper(), command=lambda: toggleBtnState(3), bg=COLORS[0][0], highlightbackground=COLORS[0][1]))
+        btns.append(tk.Button(result_frame, font=("Arial", 10), text=init_guesses[0][4].upper(), command=lambda: toggleBtnState(4), bg=COLORS[0][0], highlightbackground=COLORS[0][1]))
         for idx in range(len(btns)):
-            btns[idx].grid(row=2, column=idx)
+            btns[idx].pack(side="left", padx=3)
 
-        btn_submit = tk.Button(frame, text="SUBMIT", bg=COLORS[0][0], highlightbackground=COLORS[0][1], command = submitResult)
-        btn_submit.grid(row=2, column=len(btns))
+        btn_submit = tk.Button(result_frame, text="SUBMIT", bg=COLORS[0][0], highlightbackground=COLORS[0][1], command=submitResult)
+        btn_submit.pack(side="left", padx=(10, 0))
+        root.bind("<Return>", lambda event: submitResult())
         ## Frame end
         root.mainloop()
 
@@ -261,5 +267,5 @@ def testing_runner():
 # This is main
 if __name__ == '__main__':
     words = pre_solver(False)
-    # solver_wrapper("testinggg", False, False, words, INITIAL_GUESSES) # Normal 
-    testing_runner() # Tester Benchmark
+    solver_wrapper("testinggg", False, False, words, INITIAL_GUESSES) # Normal 
+    # testing_runner() # Tester Benchmark
