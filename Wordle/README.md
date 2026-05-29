@@ -26,6 +26,7 @@ This is for typical use, it solving the daily Wordle
 
 Main (defined at the bottom of solver.py) should look like the following
 `
+
 ```python
 if __name__ == '__main__':
     words = pre_solver(False)
@@ -64,5 +65,6 @@ py solver.py  # Run the script in terminal like this
 ## Additional Resources
 
 You can play this with the original new york times version, or Wordle Unlimited:
-https://www.nytimes.com/games/wordle/index.html
-https://wordleunlimited.org/
+
+- https://www.nytimes.com/games/wordle/index.html
+- https://wordleunlimited.org/
