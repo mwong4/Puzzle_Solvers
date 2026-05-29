@@ -1,5 +1,7 @@
 # Wordle Solver
 
+This is a tool used to solve Wordle
+
 ## How to Use
 
 ### Dependencies
@@ -23,7 +25,7 @@ py pre_process.py
 This is for typical use, it solving the daily Wordle
 
 Main (defined at the bottom of solver.py) should look like the following
-
+`
 ```python
 if __name__ == '__main__':
     words = pre_solver(False)
