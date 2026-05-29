@@ -2,12 +2,8 @@ import time
 import pandas as pd 
 import json
 import tkinter as tk
-from tkinter import ttk
 
-# Must be non empty
-# INITIAL_GUESSES = ["hates", "round", "climb"]
-INITIAL_GUESSES = ["soare", "clint", "bumpy"]
-MULTIPLIER = -1000
+INITIAL_GUESSES = ["soare", "clint", "bumpy"] # Must be non empty
 MODEL_FILE = "wordcount_output.json"
 WORDS_FILE = "words.txt"
 
@@ -144,7 +140,7 @@ def solver(word, silent, automated, words, init_guesses, tries, guess, init_size
         if not silent: print("GUI Input was: " + inp)
     
     # Solve case
-    tries, guess, words = solve_case(inp, silent, tries, word, words, guess)
+    tries, guess, words = solve_case(inp, silent, tries, words, guess)
     
     # Keep going through initial guesses
     if (tries <= init_size):
@@ -167,7 +163,7 @@ def list_cleaner_helper(word_list, eliminated_list, silent):
     return word_list
 
 # This takes in the clues from 1 round and updates the list of words that are still valid
-def solve_case(inp, silent, tries, true_word, word_list, guess): ##################################### FIX REDUNDANT VAR
+def solve_case(inp, silent, tries, word_list, guess):
     clues = list(inp)
 
     for i in range(len(clues)):
@@ -264,11 +260,6 @@ def testing_runner():
 
 # This is main
 if __name__ == '__main__':
-
-    # test()
-    # print("done loop")
-
-
     words = pre_solver(False)
     # solver_wrapper("testinggg", False, False, words, INITIAL_GUESSES) # Normal 
-    testing_runner() # Tester
+    testing_runner() # Tester Benchmark
