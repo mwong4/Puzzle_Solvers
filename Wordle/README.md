@@ -4,6 +4,8 @@
 
 ### Pre-Processor
 
+Run this to train the model
+
 ```python
 py pre_process.py
 ```
@@ -12,7 +14,7 @@ py pre_process.py
 
 This is for typical use, it solving the daily Wordle
 
-Main should look like the following
+Main (defined at the bottom of solver.py) should look like the following
 
 ```python
 if __name__ == '__main__':
@@ -21,7 +23,7 @@ if __name__ == '__main__':
 ```
 
 ```python
-py solver.py
+py solver.py # Run the script in terminal like this
 ```
 
 ### Evaluating Model
@@ -35,7 +37,7 @@ Number of 7+'s: 1332 (8.97%)
 
 Use this tool in order to optimize the solver.
 
-Main should look like the following
+Main (defined at the bottom of solver.py) should look like the following
 
 ```python
 if __name__ == '__main__':
@@ -46,5 +48,5 @@ if __name__ == '__main__':
 Run via
 
 ```python
-py solver.py
+py solver.py  # Run the script in terminal like this
 ```
