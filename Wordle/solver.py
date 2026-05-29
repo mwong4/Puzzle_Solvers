@@ -11,6 +11,9 @@ MULTIPLIER = -1000
 MODEL_FILE = "wordcount_output.json"
 WORDS_FILE = "words.txt"
 
+# For GUI
+COLORS = [["#7a7b7f", "#414248"], ["#c6b657", "#8e8340"], ["#69aa67", "#518750"]] # Gray, Yellow, Green: [normal, highlighted]
+
 def pred(ele):
     return ele.key()
 
@@ -46,45 +49,111 @@ def solver_wrapper(word, silent, automated, words, init_guesses):
     init_size = len(init_guesses)
     guess = "temp"
 
+    # For handling first initial guesses
     if not silent: print("\n == (_ for fail, caps for green, lowercase for yellow) ==")
     if len(init_guesses) > 0:
         if not silent: print("Start: " + init_guesses[0].upper())
         guess = init_guesses[0]
         words.pop(init_guesses[0])
 
-    while True:
-        # Check exit condition
-        if guess.lower() == word or (tries <= init_size and word == init_guesses[tries-1]):
-            return tries
-        if tries > 6:
-            return 7
-        tries, words, guess  = solver(word, silent, automated, words, init_guesses, tries, guess, init_size)
+    if automated:
+        # For benchmark testing
+        while True:
+            # Check exit condition
+            if guess.lower() == word or (tries <= init_size and word == init_guesses[tries-1]):
+                return tries
+            if tries > 6:
+                return 7
+            tries, words, guess  = solver(word, silent, automated, words, init_guesses, tries, guess, init_size)
+    else:
+        # GUI
+        root = tk.Tk()
+        root.title("Wordle Solver")
+
+        ## Stores state of each button
+        btn_state = [0, 0, 0, 0, 0] # 0 = gray, 1 = yellow, 2 = green
+
+        def toggleBtnState(btn_id):
+            btn_state[btn_id] += 1
+            if btn_state[btn_id] > 2:
+                btn_state[btn_id] = 0
+            btns[btn_id].config(bg=COLORS[btn_state[btn_id]][0], highlightbackground=COLORS[btn_state[btn_id]][1])
+
+        def submitResult():
+            nonlocal tries, words, guess # Otherwise Python wont use the right scope
+
+            # Parse btn_state and create clue to pass to solver
+            temp = []
+            for btn_idx in range(len(btn_state)):
+                if btn_state[btn_idx] == 0:
+                    temp.append('_')
+                elif btn_state[btn_idx] == 1:
+                    temp.append(guess[btn_idx].lower())
+                else:
+                    temp.append(guess[btn_idx].upper())
+                # Reset State
+                btn_state[btn_idx] = 0
+                btns[btn_idx].config(bg=COLORS[btn_state[0]][0], highlightbackground=COLORS[btn_state[0]][1])
+
+            # Call Solver
+            tries, words, guess  = solver(word, silent, automated, words, init_guesses, tries, guess, init_size, "".join(temp))
+            # Update Labels
+            guess_txt_obj.config(text=guess.upper())
+            for idx in range(len(btns)):
+                btns[idx].config(text=guess[idx].upper())
+
+
+        # root.rowconfigure(0, weight=1)
+        # root.rowconfigure(1, weight=1)
+
+        ## Frame
+        frame = tk.Frame(root)
+        frame.grid(row=0, column=0)
+
+        title = tk.Label(frame, text="WORDLE SOLVER")
+        title.grid(row=0, column=0)
+
+        # entry.bind("<Return>", lambda event: add_to_list())
+        # entry.bind("<Return>", add_to_list)
+
+        guess_txt_obj = tk.Label(frame, text = init_guesses[0].upper())
+        guess_txt_obj.grid(row=1)
+
+        btns = []
+        btns.append(tk.Button(frame, text=init_guesses[0][0].upper(), command = lambda: toggleBtnState(0), bg=COLORS[0][0], highlightbackground=COLORS[0][1]))
+        btns.append(tk.Button(frame, text=init_guesses[0][1].upper(), command = lambda: toggleBtnState(1), bg=COLORS[0][0], highlightbackground=COLORS[0][1]))
+        btns.append(tk.Button(frame, text=init_guesses[0][2].upper(), command = lambda: toggleBtnState(2), bg=COLORS[0][0], highlightbackground=COLORS[0][1]))
+        btns.append(tk.Button(frame, text=init_guesses[0][3].upper(), command = lambda: toggleBtnState(3), bg=COLORS[0][0], highlightbackground=COLORS[0][1]))
+        btns.append(tk.Button(frame, text=init_guesses[0][4].upper(), command = lambda: toggleBtnState(4), bg=COLORS[0][0], highlightbackground=COLORS[0][1]))
+        for idx in range(len(btns)):
+            btns[idx].grid(row=2, column=idx)
+
+        btn_submit = tk.Button(frame, text="SUBMIT", bg=COLORS[0][0], highlightbackground=COLORS[0][1], command = submitResult)
+        btn_submit.grid(row=2, column=len(btns))
+        ## Frame end
+        root.mainloop()
 
 # This function solves wordle for each iteration
-def solver(word, silent, automated, words, init_guesses, tries, guess, init_size):
-    # Keep going through initial guesses
-    if (tries <= init_size):
-        guess = init_guesses[tries-1]
-        if (init_guesses[tries-1] in words):
-            words.pop(init_guesses[tries-1])
-        if not silent: print("Initial Guess Override #" + str(tries) + ": " + guess.upper())
-
+def solver(word, silent, automated, words, init_guesses, tries, guess, init_size, inp=None):
     # Input
     if automated:
         # Automated input
         inp = wordle_output(word, guess)
         if not silent: print("Input from machine: " + inp)
     else:
-        # Human input
-        good = False
-        while not good:
-            inp = input("Input result: ")
-            if (len(inp) == 5):
-                good = True
+        if not silent: print("GUI Input was: " + inp)
     
     # Solve case
     tries, guess, words = solve_case(inp, silent, tries, word, words, guess)
-    words.pop(guess) # Update guess for next iteration
+    
+    # Keep going through initial guesses
+    if (tries <= init_size):
+        guess = init_guesses[tries-1]
+        if (init_guesses[tries-1] in words):
+            words.pop(init_guesses[tries-1])
+        if not silent: print("Initial Guess Override #" + str(tries) + ": " + guess.upper())
+    else:
+        words.pop(guess) # Remove guess from list
     return tries, words, guess
         
 # This updates the list of words that are still valid
@@ -98,7 +167,7 @@ def list_cleaner_helper(word_list, eliminated_list, silent):
     return word_list
 
 # This takes in the clues from 1 round and updates the list of words that are still valid
-def solve_case(inp, silent, tries, true_word, word_list, guess):
+def solve_case(inp, silent, tries, true_word, word_list, guess): ##################################### FIX REDUNDANT VAR
     clues = list(inp)
 
     for i in range(len(clues)):
@@ -192,51 +261,6 @@ def testing_runner():
     for i in range(1, 8):
         df = pd.DataFrame(result[i])
         df.to_csv('results/result_' + str(i) + '.csv', index=False, header=False)
-
-# This is a temporary test
-def test():
-    # GUI
-    root = tk.Tk()
-    root.title("Wordle Solver")
-
-    ## Stores state of each button
-    btn_state = [0, 0, 0, 0, 0] # 0 = gray, 1 = yellow, 2 = green
-    colors = [["#7a7b7f", "#414248"], ["#c6b657", "#8e8340"], ["#69aa67", "#518750"]] # Gray, Yellow, Green: [normal, highlighted]
-
-    def toggleBtnState(btn_id):
-        btn_state[btn_id] += 1
-        if btn_state[btn_id] > 2:
-            btn_state[btn_id] = 0
-        btns[btn_id].config(bg=colors[btn_state[btn_id]][0], highlightbackground=colors[btn_state[btn_id]][1])
-        
-    # root.rowconfigure(0, weight=1)
-    # root.rowconfigure(1, weight=1)
-
-    ## Frame
-    frame = tk.Frame(root)
-    frame.grid(row=0, column=0)
-
-    title = tk.Label(frame, text="WORDLE SOLVER")
-    title.grid(row=0, column=0)
-
-    # entry.bind("<Return>", lambda event: add_to_list())
-    # entry.bind("<Return>", add_to_list)
-
-    btns = []
-    btns.append(tk.Button(frame, text="S", command = lambda: toggleBtnState(0), bg=colors[0][0], highlightbackground=colors[0][1]))
-    btns.append(tk.Button(frame, text="O", command = lambda: toggleBtnState(1), bg=colors[0][0], highlightbackground=colors[0][1]))
-    btns.append(tk.Button(frame, text="A", command = lambda: toggleBtnState(2), bg=colors[0][0], highlightbackground=colors[0][1]))
-    btns.append(tk.Button(frame, text="R", command = lambda: toggleBtnState(3), bg=colors[0][0], highlightbackground=colors[0][1]))
-    btns.append(tk.Button(frame, text="E", command = lambda: toggleBtnState(4), bg=colors[0][0], highlightbackground=colors[0][1]))
-    for indx in range(len(btns)):
-        btns[indx].grid(row=1, column=indx)
-
-    btn_submit = tk.Button(frame, text="SUBMIT", bg=colors[0][0], highlightbackground=colors[0][1])
-    btn_submit.grid(row=1, column=len(btns))
-    ## Frame end
-
-
-    root.mainloop()
 
 # This is main
 if __name__ == '__main__':
