@@ -27,7 +27,7 @@ Main (defined at the bottom of solver.py) should look like the following
 ```python
 if __name__ == '__main__':
     words = pre_solver(False)
-    solver("somereallylongwordover5letters", False, False, words)
+    solver_wrapper("somereallylongwordover5letters", False, False, words, INITIAL_GUESSES)
 ```
 
 ```python
