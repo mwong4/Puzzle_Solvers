@@ -115,8 +115,6 @@ def solver_wrapper(word, silent, automated, words, init_guesses):
         main.pack(padx=20, pady=20)
         title = tk.Label(main, text = "WORDLE SOLVER", font = ("Arial", 32, "bold"))
         title.pack(anchor="w")
-        subtitle = tk.Label(main, text = "BY MAX WONG", font = ("Arial", 10, "bold"))
-        subtitle.pack(anchor="e")
         
         ## Try Frame
         try_frame = tk.Frame(main)
